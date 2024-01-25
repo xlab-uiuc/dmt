@@ -1,0 +1,148 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":"csharp","items":[{"aliases":[],"name":".NET"},{"aliases":["C#","c#"],"languageName":"C#","name":"csharp"},{"aliases":["F#","f#"],"languageName":"F#","name":"fsharp"},{"aliases":[],"languageName":"HTML","name":"html"},{"aliases":[],"languageName":"KQL","name":"kql"},{"aliases":[],"languageName":"Mermaid","name":"mermaid"},{"aliases":["powershell"],"languageName":"PowerShell","name":"pwsh"},{"aliases":[],"languageName":"SQL","name":"sql"},{"aliases":[],"name":"value"}]}}
+
+#!csharp
+
+// IMPORTANT NOTICE: don't forget to attach line count !!!
+// sed -i "1i $(wc -l ./host.pt_dump | awk '{print $1}')" ./host.pt_dump
+
+var mapbase = 0; // from pmap -x [PID]
+var nextbase = 0x00007f5263e00000UL; // the region start after mapbase
+
+#!csharp
+
+using System.IO;
+
+Console.WriteLine($"Loading");
+
+var file = File.ReadAllLines("/home/ubuntu/dmt-rehearsal/eval/dump_pagetables/example.tbl");
+
+Console.WriteLine($"Done");
+
+#!csharp
+
+void dump(StringBuilder sb, ulong[] regist)
+{
+	sb.AppendLine($"{regist[0]:x},{regist[1]:x},{regist[2]:x},{regist[3]:x},{regist[4]:x},{regist[5]:x}");
+}
+
+#!csharp
+
+// this is the debug pass, with max 300 records
+
+var regist = new ulong[6];
+
+// parse cr3
+var cr3 = file[0].Split()[4];
+regist[1] = Convert.ToUInt64(cr3, 16) << 12;
+
+var max = 0UL;
+var sb = new StringBuilder();
+
+Console.WriteLine($"Total Line: {file.Length}");
+if (File.Exists("host.pt_dump")) {
+	File.Delete("host.pt_dump");
+}
+
+for (var i = 1; i < file.Length; i++) {
+	var ln = file[i].Trim().Split();
+	if (ln.Length < 7)
+		continue;
+
+	if (i % 100 == 0) {
+		Console.WriteLine($"Now {i}...");
+		File.AppendAllText("host.pt_dump", sb.ToString());
+		sb.Clear();
+	}
+
+	if (i > 300) break;
+
+	var lvl = ln[0];
+	var va = Convert.ToUInt64(ln[4], 16);
+	var pa = Convert.ToUInt64(ln[6], 16) << 12;
+
+	regist[0] = va;
+
+	switch (lvl) {
+		case "P4D":
+		case "PUD":
+			regist[2] = pa;
+			break;
+		case "PMD":
+			regist[3] = pa;
+			break;
+		case "PTE":
+			regist[4] = pa;
+			break;
+		case "PAGE":
+			regist[5] = pa;
+			dump(sb, regist);
+			break;
+	}
+}
+
+sb.ToString()
+
+#!csharp
+
+// this is the real pass with all available data
+
+var regist = new ulong[6];
+
+// parse cr3
+var cr3 = file[0].Split()[4];
+regist[1] = Convert.ToUInt64(cr3, 16) << 12;
+
+var max = 0UL;
+var sb = new StringBuilder();
+
+Console.WriteLine($"Total Line: {file.Length}");
+if (File.Exists("/home/ubuntu/dmt-rehearsal/eval/dump_pagetables/host.pt_dump")) {
+	File.Delete("/home/ubuntu/dmt-rehearsal/eval/dump_pagetables/host.pt_dump");
+}
+
+for (var i = 1; i < file.Length; i++) {
+	var ln = file[i].Trim().Split();
+	if (ln.Length < 7)
+		continue;
+
+	if (i % 100000 == 0) {
+		Console.WriteLine($"Now {i}...");
+		File.AppendAllText("/home/ubuntu/dmt-rehearsal/eval/dump_pagetables/host.pt_dump", sb.ToString());
+		sb.Clear();
+	}
+
+	var lvl = ln[0];
+	var va = Convert.ToUInt64(ln[4], 16);
+	var pa = Convert.ToUInt64(ln[6], 16) << 12;
+
+	if (va < mapbase)
+		continue;
+	if (va > nextbase)
+		break;
+
+	regist[0] = va - mapbase;
+
+	switch (lvl) {
+		case "P4D":
+		case "PUD":
+			regist[2] = pa;
+			break;
+		case "PMD":
+			regist[3] = pa;
+			break;
+		case "PTE":
+			regist[4] = pa;
+			break;
+		case "PAGE":
+			regist[5] = pa;
+			dump(sb, regist);
+			break;
+	}
+}
+
+File.AppendAllText("/home/ubuntu/dmt-rehearsal/eval/dump_pagetables/host.pt_dump", sb.ToString());
+
+// IMPORTANT NOTICE: don't forget to attach line count !!!
+// // sed -i "1i $(wc -l ./host.pt_dump | awk '{print $1}')" ./host.pt_dump

@@ -1,0 +1,9 @@
+*.o
+*.o-omp
+*.a
+*.so
+*.o-mt
+*.o-omp-omp
+~            
+*.old
+.git-old/

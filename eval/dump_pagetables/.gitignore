@@ -1,0 +1,11 @@
+*
+!.gitignore
+!dump_pagetables.c
+!example.tbl
+!Makefile
+!install.sh
+!readtest.cpp
+!transform_pt_host.dib
+!transform_pt_guest.dib
+!build_header.sh
+!parse_pmap.pl

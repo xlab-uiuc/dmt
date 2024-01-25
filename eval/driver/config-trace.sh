@@ -1,0 +1,11 @@
+#!/usr/bin/env false
+
+TAG="trace"
+CREATE_OUTPUT=0
+
+PERF_INTERVAL=5
+PT_MULTIPLIER=1
+VERSION=2
+START_METHOD="file"
+
+. "$SCRIPT_DIR/init.sh"

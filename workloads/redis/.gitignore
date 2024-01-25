@@ -1,0 +1,4 @@
+deps/hiredis/hiredis-test
+deps/lua/src/lua
+deps/lua/src/luac
+src/*.dep

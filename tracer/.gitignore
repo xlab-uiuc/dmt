@@ -1,0 +1,4 @@
+build/*
+*.sw?
+.git-old/
+.git-old2/
