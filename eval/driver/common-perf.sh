@@ -2,10 +2,10 @@
 
 PERF_PATH="$ARTIFACT_DIR/linux/tools/perf/perf"
 
-PERF_DTLB_LOAD="dtlb_load_misses.walk_completed,dtlb_load_misses.walk_pending,dtlb_load_misses.walk_active,"
-PERF_DTLB_STORE="dtlb_store_misses.walk_completed,dtlb_store_misses.walk_pending,dtlb_store_misses.walk_active,"
-PERF_ITLB="itlb_misses.walk_completed,itlb_misses.walk_pending,itlb_misses.walk_active,"
-PERF_OTHER= # "ept.walk_pending," # For some CPUs, this may not present # JZFIXME, also in accounting script
+PERF_DTLB_LOAD="dtlb_load_misses.walk_completed,dtlb_load_misses.walk_duration,"
+PERF_DTLB_STORE="dtlb_store_misses.walk_completed,dtlb_store_misses.walk_duration,"
+PERF_ITLB="itlb_misses.walk_completed,itlb_misses.walk_duration,"
+PERF_OTHER= "ept.walk_cycles," # For some CPUs, this may not present
 
 PERF_COMMON="cycles:ukhHG,task-clock:ukhHG,cpu-clock:ukhHG"
 PERF_ITEMS="$PERF_DTLB_LOAD$PERF_DTLB_STORE$PERF_ITLB$PERF_OTHER$PERF_COMMON"

@@ -17,9 +17,9 @@ with open(input) as infile:
         file.append(line)
 #print("Done")
 
-valid_cols = ["dtlb_load_misses.walk_completed", "dtlb_load_misses.walk_pending", "dtlb_load_misses.walk_active",
-              "dtlb_store_misses.walk_completed", "dtlb_store_misses.walk_pending", "dtlb_store_misses.walk_active",
-              "itlb_misses.walk_completed", "itlb_misses.walk_pending", "itlb_misses.walk_active",
+valid_cols = ["dtlb_load_misses.walk_completed", "dtlb_load_misses.walk_duration",
+              "dtlb_store_misses.walk_completed", "dtlb_store_misses.walk_duration",
+              "itlb_misses.walk_completed", "itlb_misses.walk_duration", "ept.walk_cycles",
               "cycles:ukhHG"]
 
 # Read a line in the perf file

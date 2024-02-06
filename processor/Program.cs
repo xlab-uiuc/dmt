@@ -39,11 +39,11 @@ public class Processor
             .ToDictionary(x => x[0], x => decimal.Parse(x[1]));
 
         var walkOverhead =
-            (perfData["dtlb_load_misses.walk_pending"] + perfData["dtlb_store_misses.walk_pending"] + perfData["itlb_misses.walk_pending"]) /
+            (perfData["dtlb_load_misses.walk_duration"] + perfData["dtlb_store_misses.walk_duration"] + perfData["itlb_misses.walk_duration"] + perfData["ept.walk_cycles"]) * 2 / 
             (perfData["cycles:ukhHG"] * 2); // Because each core has two walkers
 
         var walkLatency =
-            (perfData["dtlb_load_misses.walk_pending"] + perfData["dtlb_store_misses.walk_pending"] + perfData["itlb_misses.walk_pending"]) /
+            (perfData["dtlb_load_misses.walk_duration"] + perfData["dtlb_store_misses.walk_duration"] + perfData["itlb_misses.walk_duration"] + perfData["ept.walk_cycles"]) * 2 / 
             (perfData["dtlb_load_misses.walk_completed"] + perfData["dtlb_store_misses.walk_completed"] + perfData["itlb_misses.walk_completed"]);
 
         var time = perfData["duration"];
