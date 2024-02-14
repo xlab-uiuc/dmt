@@ -196,6 +196,12 @@ Please download the URL and place the file at `datasets/canneal`: https://drive.
 
 
 
+### VI. Create the VMs (Varies)
+
+See [vm.md](vm.md)
+
+
+
 # Minimal Working Examples
 
 See [minimal.md](minimal.md)
