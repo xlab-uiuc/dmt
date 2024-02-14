@@ -6,9 +6,10 @@ This repository contains the artifact for reproducing our ASPLOS '24 paper "Dire
 
 - [Overview](#overview)
 - [Setup](#setup)
-- [Running Experiments](#running-experiments)
-- [Validation of the main claims](#validation-of-the-main-claims)
-- [Known issues](#known-issues)
+- [Minimal Working Examples](#minimal-working-examples)
+- [Evaluation](#evaluation)
+- [Validation of the Main Claims](#validation-of-the-main-claims)
+- [Known Issues](#known-issues)
 - [Authors](#authors)
 - [License](#license)
 
@@ -48,7 +49,9 @@ Our artifact requires a machine with at least 192 GB of physical memory and 1.5 
 
 1. Install required dependencies:
 
-  **Note**: Some operations may require root/sudo permission to run.
+> [!Note]
+>
+> Some operations may require root/sudo permission to run.
 
 ```bash
 $ cd scripts
@@ -72,7 +75,9 @@ If you want to use your own configuration file, please make sure your configurat
 
 3. Compile the kernel:
 
-   **Note:** The step below is just for reference only. You may use your favorite way to compile and install the kernel.
+> [!Note]
+>
+> The step below is just for reference only. You may use your favorite way to compile and install the kernel.
 
 ```bash
 $ make -j`nproc` --load-average=`nproc`
@@ -94,7 +99,9 @@ $ cd ../..
 
 5. Install the kernel:
 
-   **Note:** We assume your machine use GRUB here. If you use other bootloaders, please make sure to add our kernel to the bootable kernel list.
+> [!Note]
+>
+> We assume your machine use GRUB here. If you use other bootloaders, please make sure to add our kernel to the bootable kernel list.
 
 ```bash
 $ sudo make modules_install
@@ -197,9 +204,25 @@ See [minimal.md](minimal.md)
 
 # Evaluation
 
-**Note:** These steps takes significant amount of time to finish due to the amount of data need to be processed by each workload (>100 GB).
+> [!Important]
+>
+> If you are running **native** evaluation, please skip Step IV and VI.
+>
+> If you are running **nested paging virtualized** evaluation, please run Step II (nested paging) and V on host.
+>
+> If you are running **shadow paging virtualized** evaluation, please run Step II (shadow paging) and V on host.
+>
+> If you are running **nested** virtualized evaluation, please run Step II (nested paging) on **both L0 and L1**, please run Step V on **L0**.
+>
+> Aside from Step II and V, all other steps are executed in the host (native), VM (virtualized) or L2 (nested virtualized).
 
-**Note:** The time and space estimation below are for single setup. If you want to run all four setups (native, NPT virtualized, SPT virtualized, nested virtualized), the resource consumption will also grow.
+> [!Note]
+>
+> These steps takes significant amount of time to finish due to the amount of data need to be processed by each workload (>100 GB).
+
+> [!Note]
+>
+> The time and space estimation below are for single setup. If you want to run all four setups (native, NPT virtualized, SPT virtualized, nested virtualized), the resource consumption will also grow.
 
 ### I. Prepare environment (10 min, 5MB space)
 
@@ -213,11 +236,39 @@ $ cd ..
 
 
 
-### II. Collect page walk traces (8-12 hours, 200 GB space)
+### II. Configurate virtualization stack [Previously Step VI]
 
-**Note:** Please run this part under the DMT kernel.
+> [!Tip]
+>
+> You only need to perform this step if evaluating virtualized or nested virtualized case.
 
-**Note:** If you only want to run some workloads, please change `scripts/workloads.sh`
+> [!Important]
+>
+> This step is executed on your host or L0 & L1 machine, rather than inside the VM/L2.
+
+If you want to switch between shadow paging and nested paging, please do this on your host:
+
+```bash
+$ sudo modprobe -r kvm_intel # or kvm_amd if you are using AMD cpu, same below
+
+# To use shadow paging
+$ sudo modprobe kvm_intel ept=0 vpid=0 nested=1
+
+# To use nested paging
+$ sudo modprobe kvm_intel ept=1 vpid=1 nested=1
+```
+
+
+
+### III. Collect page walk traces (8-12 hours, 200 GB space)
+
+> [!Note]
+>
+> Please run this part under the DMT kernel.
+
+> [!Tip]
+>
+> If you only want to run some workloads, please change `scripts/workloads.sh`
 
 ```bash
 $ cd scripts
@@ -227,9 +278,11 @@ $ cd ..
 
 
 
-### III. Collect page walk statistics (4-8 hours, 1 GB space)
+### IV. Collect page walk statistics (4-8 hours, 1 GB space)
 
-**Note:** Please run this part under a vanilla Linux kernel.
+> [!Note]
+>
+> Please run this part under a vanilla Linux kernel.
 
 ```bash
 $ cd scripts
@@ -239,11 +292,15 @@ $ cd ..
 
 
 
-### IV. Collect host page table (10 min, 5GB space)
+### V. Collect host page table [Previously Step IV] (10 min, 5GB space)
 
-**Note:** You only need to perform this step if evaluating virtualized and nested virtualized cases.
+> [!Tip]
+>
+> You only need to perform this step if evaluating virtualized and nested virtualized cases.
 
-**Note:** This step is executed on your host machine, rather than inside the VM
+> [!Important]
+>
+> This step is executed on your host/L0 machine, rather than inside the VM
 
 ```bash
 # Take a note of the PID of the hypervisor, here we use QEMU as an example, the PID is 12345
@@ -258,11 +315,15 @@ $ cd ..
 
 
 
-### V. Run simulator (4-8 hours, 200 GB temporary space)
+### VI. Run simulator (4-8 hours, 200 GB temporary space)
 
-**Note:** This part can run under any kernel. For better stability, we recommend vanilla Linux kernel.
+> [!Tip]
+>
+> This part can run under any kernel. For better stability, we recommend vanilla Linux kernel.
 
-**Note:** The simulator may appear unresponsive after some "Initialising a cache with size" lines, sometimes up to one hour. This is normal if the `drmemtrace.trace` file is created and growing, which is located under `data/trace-<workload_name>/drmemtrace.<some_identifier>/` folder.
+> [!Note]
+>
+> The simulator may appear unresponsive after some "Initialising a cache with size" lines, sometimes up to one hour. This is normal if the `drmemtrace.trace` file is created and growing, which is located under `data/trace-<workload_name>/drmemtrace.<some_identifier>/` folder.
 
 ```bash
 # If running native experiment
@@ -274,24 +335,6 @@ $ cd ..
 $ cd scripts
 $ sudo ./run_sim_virt.sh /path/to/pt_dump.host
 $ cd ..
-```
-
-
-
-### VI. Repeat for other setups
-
-To collect results for NPT virtualized, SPT virtualized or nested environments, please execute the Setup Steps and Evaluation Steps in a virtual machine / nested virtual machine. Note that the runtime may take longer for these two setups due to the virtualization overhead.
-
-**Note:** If you want to switch between shadow paging and nested paging, please do this on your host:
-
-```bash
-$ sudo modprobe -r kvm_intel # or kvm_amd if you are using AMD cpu, same below
-
-# To use shadow paging
-$ sudo modprobe kvm_intel ept=0 vpid=0 nested=1
-
-# To use nested paging
-$ sudo modprobe kvm_intel ept=1 vpid=1 nested=1
 ```
 
 
@@ -313,7 +356,7 @@ $ ./result_nested.sh
 
 
 
-# Validation of the main claims
+# Validation of the Main Claims
 
 ### 6.1 DMT Performance over Baseline
 
@@ -342,7 +385,7 @@ $ ./result_nested.sh
 
 
 
-# Known issues 
+# Known Issues 
 
 1. When there are too many process forks (e.g. running `make`), the DMT kernel may panic due to inconsistent cgroup status
 
