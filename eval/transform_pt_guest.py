@@ -37,10 +37,10 @@ for eachfile in files:
         
         if (currsize > bigsize):
             bigsize = currsize
-            bignum = currnum
+            bignum = int(currnum)
             input = currpath
-        elif (currsize == bigsize and currnum > bignum):
-            bignum = currnum
+        elif (currsize == bigsize and int(currnum) > bignum):
+            bignum = int(currnum)
             input = currpath
 
 if (input == ""):

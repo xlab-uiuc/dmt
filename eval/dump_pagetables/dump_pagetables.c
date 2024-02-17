@@ -395,6 +395,8 @@ static int pt_seq_show(struct seq_file *s, void *v)
 		}
 
 		normal_table_walker(s, spos, mm->pgd);
+
+		mmput(mm);
 	}
 
 	return 0;

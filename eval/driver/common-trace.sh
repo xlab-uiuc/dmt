@@ -110,7 +110,7 @@ echo 1 > "$ENABLE_FILE"
 
 while true; do
 
-		checker=$(cat /proc/$pid/comm 2>/dev/null)
+		checker=$(cat /proc/$pid/comm 2>/dev/null || true)
 		if [ "$checker" != "generate_trace." ]; then
 			break
 		fi
