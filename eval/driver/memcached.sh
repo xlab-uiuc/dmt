@@ -13,10 +13,12 @@ sudo killall memcached || true
 
 . "$SCRIPT_DIR/config-$1.sh"
 
+param="$1"
+
 function pre_hook { :; }
 
 function post_hook {
-	"$SCRIPT_DIR/memcached-client.sh" "$1" &
+	"$SCRIPT_DIR/memcached-client.sh" "$param" &
 }
 
 COMMAND="/usr/bin/memcached -u root -m 131000 -p 11211 -l 127.0.0.1"
