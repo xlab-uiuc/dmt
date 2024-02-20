@@ -15,7 +15,7 @@ sudo killall bench_xsbench_mt || true
 function pre_hook { :; }
 function post_hook { :; }
 
-COMMAND="$ARTIFACT_DIR/workloads/bin/bench_xsbench_mt2 -- -t 1 -g 170000 -p 4000000"
+COMMAND="$ARTIFACT_DIR/workloads/bin/bench_xsbench_mt -- -t 1 -g 170000 -p 4000000"
 
 START_FILE="/tmp/enablement/xsbench_watch"
 
