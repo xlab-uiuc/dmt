@@ -4,7 +4,7 @@ set -euo pipefail
 
 # file locator
 SCRIPT_DIR=$(dirname "$(realpath -e "${BASH_SOURCE[0]:-$0}")")
-. "$SCRIPT_DIR/common.sh"
+. "$SCRIPT_DIR/../../scripts/common.sh"
 
 cd "$SCRIPT_DIR/../ycsb"
 mkdir -p results
